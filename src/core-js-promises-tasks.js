@@ -165,8 +165,34 @@ function getAllOrNothing(promises) {
  * [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)] => Promise fulfilled with [1, 2, 3]
  * [Promise.resolve(1), Promise.reject(2), Promise.resolve(3)]  => Promise fulfilled with [1, null, 3]
  */
-function getAllResult(/* promises */) {
-  throw new Error('Not implemented');
+function getAllResult(promises) {
+  return new Promise((resolve) => {
+    const results = new Array(promises.lenth);
+    let pending = promises.length;
+
+    if (pending === 0) {
+      resolve(results);
+      return;
+    }
+
+    const checkCompletion = () => {
+      pending -= pending;
+      if (pending === 0) {
+        resolve(results);
+      }
+    };
+
+    promises.forEach((promise, index) => {
+      promise
+        .then((value) => {
+          results[index] = value;
+        })
+        .catch(() => {
+          results[index] = null;
+        })
+        .finally(checkCompletion);
+    });
+  });
 }
 
 /**
